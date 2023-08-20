@@ -12,8 +12,6 @@ CREATE TABLE IF NOT EXISTS Department (
     department varchar(20)
 );
 
-select * from department;
-
 CREATE TABLE IF NOT EXISTS Surgeon (
 	  surgeonID INT PRIMARY KEY NOT NULL,
 	  firstName VARCHAR(25) NOT NULL,
@@ -37,7 +35,6 @@ CREATE TABLE IF NOT EXISTS Referral (
     refDate DATE NOT NULL,
     healthTarget VARCHAR(3),
     refFrom VARCHAR(20),
-    NHI CHAR (7),
     patientID INT NOT NULL,
     refereeID INT NOT NULL,
     surgeonID INT NOT NULL,
@@ -49,7 +46,7 @@ CREATE TABLE IF NOT EXISTS Referral (
 CREATE TABLE IF NOT EXISTS Waitlist (
 	waitlistID INT PRIMARY KEY NOT NULL,
 	waitlistDate DATE NOT NULL,
-	fsaDate DATE,
+	fsaDate DATE NULL,
 	daysWaitingFromRef INT,
 	refID INT NOT NULL,
 	FOREIGN KEY (refID) REFERENCES referral (refID)
@@ -90,12 +87,10 @@ INTO TABLE waitlist
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(waitlistID, @waitlistDate, @fsaDate, @daysWaitingFromRef, refID)
-SET waitlistDate = STR_TO_DATE(@waitlistDate, '%Y/%m/%d'),
-    fsaDate = NULLIF(@fsaDate, ''),
-    daysWaitingFromRef = NULLIF(NULLIF(@daysWaitingFromRef, ''), '');
+(waitlistID, waitlistDate, @fsaDate, @daysWaitingFromRef, refID) -- Use @daysWaitingFromRef to hold the value temporarily
+SET fsaDate = NULLIF(@fsaDate, ''), -- Set fsaDate to NULL if @fsaDate is an empty string
+    daysWaitingFromRef = NULLIF(@daysWaitingFromRef, ''); -- Set daysWaitingFromRef to NULL if @daysWaitingFromRef is an empty string
 
-select * from waitlist;
 drop table waitlist;
 drop table referral;
 drop table patient;
